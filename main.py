@@ -3,8 +3,8 @@
 from datetime import datetime
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+import numpy
+import pandas
 from matplotlib.dates import DateFormatter, DayLocator
 
 
@@ -13,26 +13,27 @@ def get_data_from_csv():
     custom_date_parser = lambda x: datetime.strptime(x, "%d-%m-%Y %H:%M:%S")
 
     # Import data from csv and convert to date format
-    df = pd.read_csv('data.csv',
-                     parse_dates=['arrival_date', 'departure_date'],
-                     date_parser=custom_date_parser)
-    df['time_warehouse'] = pd.to_timedelta(df['time_warehouse'])
+    dataframe = pandas.read_csv('data.csv',
+                                parse_dates=['arrival_date', 'departure_date'],
+                                date_parser=custom_date_parser)
+    dataframe['time_warehouse'] = pandas.to_timedelta(dataframe['time_warehouse'])
 
-    return df
+    return dataframe
 
 
 def dates_from_month(month, year):
     # Format for start date and end date
     start_date = f"{year}-{month}-1"
-    start_date = pd.to_datetime(start_date)
+    start_date = pandas.to_datetime(start_date)
     # In case it is the last month of the year
     if month == 12:
-        stop_date = f"{year+1}-1-1"
+        stop_date = f"{year + 1}-1-1"
     else:
-        stop_date = f"{year}-{month+1}-1"
-    stop_date = pd.to_datetime(stop_date)
+        stop_date = f"{year}-{month + 1}-1"
+    stop_date = pandas.to_datetime(stop_date)
 
-    return np.arange(start_date, stop_date, dtype='datetime64[D]')
+    return numpy.arange(start_date, stop_date, dtype='datetime64[D]')
+
 
 def graphing_statistics(month, year, pedidos_activos, days_array):
     # Get the full name of the month
@@ -45,7 +46,7 @@ def graphing_statistics(month, year, pedidos_activos, days_array):
     ax.plot(days_array, pedidos_activos, label=month_name, marker='o')
     ax.legend(loc='upper right')
     ax.set_ylabel('Number of active packages')
-    ax.set_xlabel('Day of the month')
+    ax.set_xlabel('Date')
     ax.set_title(f"Monthly Consolidated\n{month_name} - {year}")
     ax.xaxis.set_major_formatter(date_form)
     ax.xaxis.set_major_locator(DayLocator(interval=2))
@@ -61,16 +62,16 @@ def monthly_consolidated(month, year):
     days_array = dates_from_month(month, year)
 
     # Fill in the number of active orders per days in the selected month
-    pedidos_activos = []
+    active_package = []
     for day in days_array:
         sum = 0
         for i in range(len(dataframe)):
             if dataframe['arrival_date'][i] <= day <= dataframe['departure_date'][i]:
                 sum += 1
-        pedidos_activos.append(sum)
+        active_package.append(sum)
 
     # Graphing statistics
-    graphing_statistics(month, year, pedidos_activos, days_array)
+    graphing_statistics(month, year, active_package, days_array)
 
 
 if __name__ == '__main__':
